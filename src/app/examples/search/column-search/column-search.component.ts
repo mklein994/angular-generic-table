@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {
 	GenericTableComponent,
 	GtConfig,
@@ -13,12 +14,22 @@ import { Person, PEOPLE } from '../person';
 })
 export class ColumnSearchComponent implements OnInit {
 	public configObject: GtConfig<Person>;
+	people: Person[] = [];
 
 	public options: GtOptions = {
-		highlightSearch: true
+		highlightSearch: true,
+		lazyLoad: true
 	};
 
-	constructor() {
+	constructor(private http: HttpClient) {}
+
+	private getData() {
+		this.http
+			.get<Person[]>('http://localhost:4200/assets/data/employee.json')
+			.subscribe(people => (this.people = people));
+	}
+
+	ngOnInit() {
 		this.configObject = {
 			settings: [
 				{
@@ -57,10 +68,9 @@ export class ColumnSearchComponent implements OnInit {
 					objectKey: 'lucky_number',
 					stackedHeading: 'Custom heading'
 				}
-			],
-			data: PEOPLE
+			]
 		};
-	}
 
-	ngOnInit() {}
+		this.getData();
+	}
 }
